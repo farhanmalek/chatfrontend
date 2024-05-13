@@ -1,18 +1,21 @@
 "use client"
 import ChatBubble from "./ChatBubble";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { useState } from "react";
 
-const ChatBox = () => {
 
-  const [goBack, setGoBack] = useState<boolean>(false);
+interface ChatProps {
+  setShowChat?: (arg0: boolean) => void
+  showChat?: boolean
+}
+
+const ChatBox = ({setShowChat,showChat}:ChatProps) => {
 
   return (
 
-    <div className="flex-1 pl-2 gap-1 flex flex-col">
+    <div className="flex-grow pl-2 gap-1 flex flex-col">
       <div className="navbar bg-base-100 border-b-2">
         <div className="flex-1">
-        <IoMdArrowRoundBack className="md:hidden" onClick={() => setGoBack(true)}/>
+        {setShowChat && <IoMdArrowRoundBack className="md:hidden" onClick={() => setShowChat(false)}/>}
           <a className="btn btn-ghost text-xl">The United Nations V2</a>
         </div>
         <div className="flex-none">

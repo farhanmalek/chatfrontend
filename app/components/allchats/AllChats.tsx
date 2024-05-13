@@ -13,7 +13,7 @@ const AllChats = ({isModalOpen,setIsModalOpen}: ModalProps) => {
 
   return (
     <>
-        <div className="md:flex flex-col p-2 gap-3 rounded-md bg-secondary-content hidden ">
+        <div className="md:flex flex-col p-2 gap-3 rounded-md bg-secondary-content hidden w-[20%] ">
       <div className="flex justify-between">
         <p className="text-white font-bold text-2xl">Chats</p>
       
@@ -25,7 +25,7 @@ const AllChats = ({isModalOpen,setIsModalOpen}: ModalProps) => {
       <input
         type="text"
         placeholder="Search chats"
-        className="input input-bordered w-full max-w-xs p-2"
+        className="input input-bordered w-full p-2"
       />
       <div className="overflow-y-auto flex flex-col gap-2">
         <ChatCard />
