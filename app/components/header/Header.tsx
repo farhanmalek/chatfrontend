@@ -1,5 +1,4 @@
 import React from 'react'
-import SearchBar from './SearchBar'
 
 const Header = () => {
   return (
@@ -18,7 +17,7 @@ const Header = () => {
           <img alt="Tailwind CSS Navbar component" src="https://img.daisyui.com/images/stock/photo-1534528741775-53994a69daeb.jpg" />
         </div>
       </div>
-      <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52 bg-secondary-content">
+      <ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content rounded-box w-52 bg-secondary-content">
         <li>
           <a className="justify-between">
             Profile
@@ -30,7 +29,7 @@ const Header = () => {
   </div>
 </div>
 <div className='p-2 self-center w-[70%] '>
-<SearchBar/>
+
 </div>
 
 </div>

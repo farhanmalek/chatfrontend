@@ -1,9 +1,19 @@
+"use client"
+import ChatBubble from "./ChatBubble";
+import { IoMdArrowRoundBack } from "react-icons/io";
+import { useState } from "react";
+
 const ChatBox = () => {
+
+  const [goBack, setGoBack] = useState<boolean>(false);
+
   return (
-    <div className="flex-1">
+
+    <div className="flex-1 pl-2 gap-1 flex flex-col">
       <div className="navbar bg-base-100 border-b-2">
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl">GroupChat Name</a>
+        <IoMdArrowRoundBack className="md:hidden" onClick={() => setGoBack(true)}/>
+          <a className="btn btn-ghost text-xl">The United Nations V2</a>
         </div>
         <div className="flex-none">
           <button className="btn btn-square btn-ghost">
@@ -23,9 +33,15 @@ const ChatBox = () => {
           </button>
         </div>
       </div>
-      <div className="flex-1 border border-red-600 h-[85%]">
-        Chats
+      <div className="flex-grow h-[85%]">
+        <ChatBubble/>
       </div>
+      <div className="flex gap-2">
+      <input type="text" placeholder="Send Message..." className="input input-bordered flex-grow" />
+      <button className="btn btn-neutral">Send</button>
+
+      </div>
+      
 
     </div>
   );
