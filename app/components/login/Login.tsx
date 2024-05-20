@@ -1,10 +1,11 @@
+import Link from 'next/link'
 import React from 'react'
 
 const Login = () => {
   return (
-    <div className="max-w-[500px] rounded-lg bg-neutral">
-    <form className="flex flex-col gap-3 p-5">
-      <label className="input input-bordered flex items-center gap-2">
+    <div className="rounded-lg flex flex-col">
+    <form className="flex flex-col gap-4 p-5 justify-center">
+      <label className="input flex items-center gap-2 bg-transparent border border-b-white rounded-none">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 16 16"
@@ -15,7 +16,7 @@ const Login = () => {
         </svg>
         <input type="text" className="grow" placeholder="Username / Email" />
       </label>
-      <label className="input input-bordered flex items-center gap-2">
+      <label className="input flex items-center gap-2 bg-transparent border border-b-white rounded-none">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 16 16"
@@ -30,9 +31,10 @@ const Login = () => {
         </svg>
         <input type="password" className="grow" />
       </label>
-      <button className="btn btn-secondary hover:btn-active">Login</button>
+      <button className="btn btn-secondary hover:btn-active glass" >Login</button>
 
     </form>
+    <p className='pl-5'>New here? Sign up <Link href='/register' className='underline cursor-pointer'> here</Link></p>
   </div>
   )
 }
