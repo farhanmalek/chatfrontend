@@ -73,13 +73,6 @@ export const BackgroundGradientAnimation = ({
     move();
   }, [tgX, tgY]);
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
-    if (interactiveRef.current) {
-      const rect = interactiveRef.current.getBoundingClientRect();
-      setTgX(event.clientX - rect.left);
-      setTgY(event.clientY - rect.top);
-    }
-  };
 
   const [isSafari, setIsSafari] = useState(false);
   useEffect(() => {
@@ -164,17 +157,6 @@ export const BackgroundGradientAnimation = ({
           )}
         ></div>
 
-        {interactive && (
-          <div
-            ref={interactiveRef}
-            onMouseMove={handleMouseMove}
-            className={cn(
-              `absolute [background:radial-gradient(circle_at_center,_rgba(var(--pointer-color),_0.8)_0,_rgba(var(--pointer-color),_0)_50%)_no-repeat]`,
-              `[mix-blend-mode:var(--blending-value)] w-full h-full -top-1/2 -left-1/2`,
-              `opacity-70`
-            )}
-          ></div>
-        )}
       </div>
     </div>
   );

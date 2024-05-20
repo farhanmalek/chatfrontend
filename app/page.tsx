@@ -6,16 +6,14 @@ import FriendModal from "./components/allchats/FriendModal";
 import ChatBox from "./components/chatbox/ChatBox";
 import Header from "./components/header/Header";
 import { useState } from "react";
-import "react-toastify/dist/ReactToastify.css";
-import { UserProvider } from "./context/useAuth";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showChat, setShowChat] = useState<boolean>(true);
 
   return (
-    <UserProvider>
-      <Header />
+    <>
+         <Header />
       <div className="px-3">
         <div className="md:flex h-[90vh] hidden ">
           <AllChats isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
@@ -36,7 +34,8 @@ export default function Home() {
           />
         )}
       </div>
-      <ToastContainer />
-    </UserProvider>
+    </>
+   
+   
   );
 }

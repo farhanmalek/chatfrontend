@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "./components/header/Header";
+import { UserProvider } from "./context/useAuth";
+import ClientProvider from "./ClientProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,9 +20,9 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme="night">
       <body className={inter.className}>
-        {children}
+        <ClientProvider>{children}</ClientProvider>
         
-        </body>
+      </body>
     </html>
   );
 }
