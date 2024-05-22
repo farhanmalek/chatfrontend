@@ -6,13 +6,14 @@ import FriendModal from "./components/allchats/FriendModal";
 import ChatBox from "./components/chatbox/ChatBox";
 import Header from "./components/header/Header";
 import { useState } from "react";
+import ProtectedRoute from "./helpers/ProtectedRoute";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showChat, setShowChat] = useState<boolean>(true);
 
   return (
-    <>
+    <ProtectedRoute>
          <Header />
       <div className="px-3">
         <div className="md:flex h-[90vh] hidden ">
@@ -34,7 +35,7 @@ export default function Home() {
           />
         )}
       </div>
-    </>
+    </ProtectedRoute>
    
    
   );

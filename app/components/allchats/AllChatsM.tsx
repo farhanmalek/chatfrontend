@@ -73,13 +73,7 @@ const AllChatsM = ({ setShowChat, showChat }: ChatProps) => {
           />
         </div>
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
+
         </div>
       </div>
         </div>
@@ -118,13 +112,7 @@ const AllChatsM = ({ setShowChat, showChat }: ChatProps) => {
           />
         </div>
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
+
         </div>
       </div>
         </div>

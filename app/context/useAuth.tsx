@@ -6,12 +6,12 @@ import { toast } from "react-toastify";
 import React from "react";
 import axios from "axios";
 
-//custom hook
+// Custom hook
 type UserContextType = {
   user: UserProfile | null;
   token: string | null;
-  registerUser: (email: string, userName: string, password: string) => void;
-  loginUser: (userName: string, password: string) => void;
+  registerUser: (email: string, userName: string, password: string) => Promise<void>;
+  loginUser: (userName: string, password: string) => Promise<void>;
   logout: () => void;
   isLoggedIn: () => boolean;
 };
@@ -27,85 +27,76 @@ export const UserProvider = ({ children }: Props) => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    const token = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+    const storedToken = localStorage.getItem("token");
 
-    if (user && token) {
-      setUser(JSON.parse(user));
-      setToken(token);
-      axios.defaults.headers.common["Authorization"] = "Bearer" + token //add bearer token to every single api request 
+    if (storedUser && storedToken) {
+      setUser(JSON.parse(storedUser));
+      setToken(storedToken);
+      axios.defaults.headers.common["Authorization"] = "Bearer " + storedToken;
     }
     setIsReady(true);
   }, []);
 
-  const registerUser = async (
-    email: string,
-    userName: string,
-    password: string
-  ) => {
+  const registerUser = async (email: string, userName: string, password: string) => {
     try {
       const response = await registerAPI(email, userName, password);
       if (response) {
-        localStorage.setItem("token", response?.data.token);
+        localStorage.setItem("token", response.data.token);
         const userObj = {
-          userName: response?.data.userName,
-          email: response?.data.email,
+          userId: response.data.userId, // Add the missing userId property
+          userName: response.data.userName,
+          email: response.data.email,
         };
         localStorage.setItem("user", JSON.stringify(userObj));
-        setToken(response?.data.token);
-        setUser(userObj!);
-        toast.success("Login Success!");
+        setToken(response.data.token);
+        setUser(userObj);
+        toast.success("Registration Successful!");
         router.push("/login");
       }
     } catch (error) {
-        toast.warning("Server Error Occured")
+      toast.warning("Server Error Occurred");
     }
   };
-  const loginUser = async (
-    userName: string,
-    password: string
-  ) => {
+
+  const loginUser = async (userName: string, password: string) => {
     try {
       const response = await loginAPI(userName, password);
       if (response) {
-        localStorage.setItem("token", response?.data.token);
+        localStorage.setItem("token", response.data.token);
         const userObj = {
-          userName: response?.data.userName,
-          email: response?.data.email,
+          userId: response.data.userId, // Add the missing userId property
+          userName: response.data.userName,
+          email: response.data.email,
         };
         localStorage.setItem("user", JSON.stringify(userObj));
-        setToken(response?.data.token);
-        setUser(userObj!);
+        setToken(response.data.token);
+        setUser(userObj);
         toast.success("Login Success!");
         router.push("/");
       }
     } catch (error) {
-        toast.warning("Server Error Occured")
+      toast.warning("Server Error Occurred");
     }
   };
 
   const isLoggedIn = () => {
-     return !!user;
-  }
+    return !!user;
+  };
 
   const logout = () => {
-    localStorage.removeItem("token")
-    localStorage.removeItem("user")
-    setUser(null)
-    setToken("")
-    router.push("/login")
-  }
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    setUser(null);
+    setToken(null); // Set token to null instead of an empty string
+    router.push("/login");
+  };
 
   return (
-    <UserContext.Provider value= {{loginUser, user, token, isLoggedIn, registerUser, logout}}>
-        {
-            isReady ? children : null
-        }
+    <UserContext.Provider value={{ loginUser, user, token, isLoggedIn, registerUser, logout }}>
+      {isReady ? children : null}
     </UserContext.Provider>
-  )
-
-
+  );
 };
 
-export const useAuth = () => React.useContext(UserContext)
-
+export const useAuth = () => React.useContext(UserContext);

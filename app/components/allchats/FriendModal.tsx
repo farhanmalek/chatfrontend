@@ -1,4 +1,8 @@
+'use client'
+import { useEffect, useState } from "react";
 import FriendCard from "./FriendCard";
+import { UserProfile } from "@/app/models/UserModel";
+import { getFriends } from "@/app/services/FriendService";
 
 interface ModalProps {
   setIsModalOpen: (arg0: boolean) => void;
@@ -6,6 +10,23 @@ interface ModalProps {
 }
 
 const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
+  const [friends, setFriends] = useState<UserProfile[]>([]);
+  const [searchInput, setSearchInput] = useState("");
+
+  useEffect(() => {
+    // Fetch friends when the component mounts or searchInput changes
+    const fetchFriends = async () => {
+      try {
+        const response = await getFriends(searchInput);
+        setFriends(response!.data);
+      } catch (error) {
+        console.error("Failed to fetch friends", error);
+      }
+    };
+
+    fetchFriends();
+  }, [searchInput]);
+
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50 gap-2">
       <div className="bg-base-100 p-4 rounded-lg w-full max-w-md h-[50%]">
@@ -36,16 +57,14 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
             type="text"
             placeholder="Search friends..."
             className="w-full border rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
-          <FriendCard />
+          {friends.map((friend) => (
+            <FriendCard key={friend.userId} user={friend} action="Message" />
+          ))}
         </div>
       </div>
     </div>
