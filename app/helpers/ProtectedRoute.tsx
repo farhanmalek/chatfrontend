@@ -5,7 +5,7 @@ import { useAuth } from "../context/useAuth";
 type Props = { children: React.ReactNode };
 
 const ProtectedRoute = ({ children }: Props) => {
-  const { isLoggedIn } = useAuth();
+  const { isLoggedIn, user } = useAuth();
   const router = useRouter();
 
   useEffect(() => {

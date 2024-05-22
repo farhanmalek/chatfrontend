@@ -3,6 +3,7 @@
 import { handleError } from "../helpers/errorHandler"
 import axios from "axios"
 import { UserProfile } from "../models/UserModel"
+import { Action } from "../components/header/PendingRequestCard"
 
 //get list of all users 
 
@@ -53,14 +54,40 @@ export const sendFriendRequest = async (receiver: UserProfile) => {
 }
 
 //handle a friend request
-export const handleFriendRequest = async (sender: UserProfile, action:string) => {
+export const handleFriendRequest = async (sender: UserProfile, action: string) => {
     try {
-        const data = await axios.put(api + "friendships/send", {
+        console.log(action)
+        const data = await axios.put(api + `friendships/status?action=${action}`, {
             userId: sender.userId,
             userName: sender.userName,
-            action: action
         })
         return data
+        
+    } catch (error) {
+        handleError(error)
+    }
+}
+
+//check status between two users
+export const checkStatus = async (user: UserProfile) => {
+    try {
+        const data = await axios.post<string>(api + "friendships/status", {
+           userId: user.userId,
+           userName: user.userName
+           
+        })
+        console.log(user)
+        return data;
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+//get pending friend requests
+export const pendingFriendRequests = async () => {
+    try {
+        const data = await axios.get<UserProfile[]>(api + "friendships/requests")
+        return data;
         
     } catch (error) {
         handleError(error)

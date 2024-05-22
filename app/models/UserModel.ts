@@ -1,12 +1,12 @@
 export type UserProfileToken = {
-    userId: string,
+    id: string,
     userName: string,
     email: string,
     token: string
 }
 
 export type UserProfile = {
-    userId: string,
+    Id: string,
     userName: string,
     email?: string,
 }

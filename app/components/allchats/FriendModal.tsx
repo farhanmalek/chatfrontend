@@ -63,7 +63,7 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
         </div>
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
           {friends.map((friend) => (
-            <FriendCard key={friend.userId} user={friend} action="Message" />
+            <FriendCard key={friend.Id} user={friend} action="Message" />
           ))}
         </div>
       </div>

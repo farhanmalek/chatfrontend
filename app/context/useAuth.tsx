@@ -44,7 +44,7 @@ export const UserProvider = ({ children }: Props) => {
       if (response) {
         localStorage.setItem("token", response.data.token);
         const userObj = {
-          userId: response.data.userId, // Add the missing userId property
+          Id: response.data.id, // Add the missing userId property
           userName: response.data.userName,
           email: response.data.email,
         };
@@ -63,12 +63,16 @@ export const UserProvider = ({ children }: Props) => {
     try {
       const response = await loginAPI(userName, password);
       if (response) {
+        console.log(response.data)
         localStorage.setItem("token", response.data.token);
+
         const userObj = {
-          userId: response.data.userId, // Add the missing userId property
+          Id: response.data.id, // Add the missing userId property
           userName: response.data.userName,
           email: response.data.email,
         };
+        console.log(userObj);
+        
         localStorage.setItem("user", JSON.stringify(userObj));
         setToken(response.data.token);
         setUser(userObj);

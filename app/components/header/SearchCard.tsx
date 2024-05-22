@@ -7,8 +7,7 @@ interface searchProps {
 
 const SearchCard = ({searchResults}: searchProps) => {
 
-console.log(searchResults)
-  
+
   return (
     <div className="bg-base-200 w-[300px] rounded-md absolute right-0 mt-2 z-50">
         {

@@ -1,17 +1,26 @@
 "use client";
-import { ToastContainer } from "react-toastify";
 import AllChats from "./components/allchats/AllChats";
 import AllChatsM from "./components/allchats/AllChatsM";
 import FriendModal from "./components/allchats/FriendModal";
 import ChatBox from "./components/chatbox/ChatBox";
 import Header from "./components/header/Header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "./helpers/ProtectedRoute";
+import { useAuth } from "./context/useAuth";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showChat, setShowChat] = useState<boolean>(true);
+  const {user, isLoggedIn} = useAuth();
 
+  useEffect(() => {
+    // Any state or data that should be reset when the user changes
+  }, [user]);
+
+if (!isLoggedIn) {
+    return null;
+  }
+  
   return (
     <ProtectedRoute>
          <Header />

@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import SearchCard from "./SearchCard";
 import { useAuth } from "@/app/context/useAuth";
 import { UserProfile } from "@/app/models/UserModel";
-import { getAllUsers } from "@/app/services/FriendService";
+import { getAllUsers, pendingFriendRequests } from "@/app/services/FriendService";
 import { useDebounce } from "@/app/helpers/hooks";
+import FriendRequestModal from "./FriendRequestModal";
 
 const Header = () => {
   const [input, setInput] = useState<string>("");
@@ -11,6 +12,8 @@ const Header = () => {
   const [searchResults, setSearchResults] = useState<UserProfile[]>(
     [] as UserProfile[]
   );
+  const [friendRequestModal, setFriendRequestModal] = useState<boolean>(false);
+  const [pendingRequests, setPendingRequests] = useState<UserProfile[]>([] as UserProfile[]);
   const debouncedSearch = useDebounce(input);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -37,6 +40,12 @@ const Header = () => {
 
   function handleModal() {
     setModalOpen(!modalOpen);
+    setFriendRequestModal(false);
+  }
+
+  function openFriendRequestModal() {
+    setFriendRequestModal(!friendRequestModal);
+    setModalOpen(false);
   }
 
   //Handle Logout
@@ -57,11 +66,21 @@ const Header = () => {
     }
   };
 
+  //make api call to fetch pending friend requests
+  const getPendingRequests = async () => {
+    const requests = await pendingFriendRequests();
+    setPendingRequests(requests!.data);
+
+  }
 
   //implement searching
   useEffect(() => {
     fetchUsers();
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    getPendingRequests();
+  }, []);
 
   return (
     <div className="flex flex-col gap-2">
@@ -70,6 +89,10 @@ const Header = () => {
           <a className="btn btn-ghost text-xl">WilliamsBook</a>
         </div>
         <div className="flex-none gap-2" ref={searchRef}>
+          <div className="relative">
+            <button className="btn btn-ghost" onClick={openFriendRequestModal}>FR({pendingRequests.length})</button>
+            {friendRequestModal && <FriendRequestModal requests = {pendingRequests} getPendingRequests={getPendingRequests} />}
+          </div>
           <div className="form-control hidden md:block relative">
             <input
               type="text"
