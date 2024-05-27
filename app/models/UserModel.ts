@@ -6,7 +6,7 @@ export type UserProfileToken = {
 }
 
 export type UserProfile = {
-    Id: string,
+    userId: string,
     userName: string,
     email?: string,
 }

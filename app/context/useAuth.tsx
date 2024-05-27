@@ -42,15 +42,16 @@ export const UserProvider = ({ children }: Props) => {
     try {
       const response = await registerAPI(email, userName, password);
       if (response) {
-        localStorage.setItem("token", response.data.token);
         const userObj = {
-          Id: response.data.id, // Add the missing userId property
+          Id: response.data.id,
           userName: response.data.userName,
           email: response.data.email,
         };
+        localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(userObj));
         setToken(response.data.token);
         setUser(userObj);
+        axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.token;
         toast.success("Registration Successful!");
         router.push("/login");
       }
@@ -63,19 +64,16 @@ export const UserProvider = ({ children }: Props) => {
     try {
       const response = await loginAPI(userName, password);
       if (response) {
-        console.log(response.data)
-        localStorage.setItem("token", response.data.token);
-
         const userObj = {
-          Id: response.data.id, // Add the missing userId property
+          Id: response.data.id,
           userName: response.data.userName,
           email: response.data.email,
         };
-        console.log(userObj);
-        
+        localStorage.setItem("token", response.data.token);
         localStorage.setItem("user", JSON.stringify(userObj));
         setToken(response.data.token);
         setUser(userObj);
+        axios.defaults.headers.common["Authorization"] = "Bearer " + response.data.token;
         toast.success("Login Success!");
         router.push("/");
       }
@@ -92,7 +90,8 @@ export const UserProvider = ({ children }: Props) => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-    setToken(null); // Set token to null instead of an empty string
+    setToken(null);
+    delete axios.defaults.headers.common["Authorization"];
     router.push("/login");
   };
 

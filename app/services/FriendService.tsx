@@ -3,7 +3,6 @@
 import { handleError } from "../helpers/errorHandler"
 import axios from "axios"
 import { UserProfile } from "../models/UserModel"
-import { Action } from "../components/header/PendingRequestCard"
 
 //get list of all users 
 
@@ -15,8 +14,11 @@ export const getAllUsers = async (searchInput:string)  => {
         const data = await axios.get<UserProfile[]>(api + "account/users", {
             params: {
                 searchInput: searchInput
-            }
-        })
+            },
+            
+    
+        },
+    )
         return data;
     } catch (error) {
         handleError(error)
@@ -27,11 +29,8 @@ export const getAllUsers = async (searchInput:string)  => {
 
 export const getFriends = async (searchInput:string) => {
     try {
-        const data = await axios.get<UserProfile[]>(api + "friendships", {
-            params: {
-                searchInput: searchInput
-            }
-        })
+
+        const data = await axios.get<UserProfile[]>(api + `friendships?searchInput=${searchInput}`)
         return data;
         
     } catch (error) {
@@ -56,7 +55,6 @@ export const sendFriendRequest = async (receiver: UserProfile) => {
 //handle a friend request
 export const handleFriendRequest = async (sender: UserProfile, action: string) => {
     try {
-        console.log(action)
         const data = await axios.put(api + `friendships/status?action=${action}`, {
             userId: sender.userId,
             userName: sender.userName,
@@ -76,7 +74,6 @@ export const checkStatus = async (user: UserProfile) => {
            userName: user.userName
            
         })
-        console.log(user)
         return data;
     } catch (error) {
         console.error(error);

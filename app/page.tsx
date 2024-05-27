@@ -1,12 +1,13 @@
 "use client";
 import AllChats from "./components/allchats/AllChats";
-import AllChatsM from "./components/allchats/AllChatsM";
+import AllChatsM from "./components/allchats/Mobile/AllChatsM";
 import FriendModal from "./components/allchats/FriendModal";
 import ChatBox from "./components/chatbox/ChatBox";
 import Header from "./components/header/Header";
 import { useEffect, useState } from "react";
 import ProtectedRoute from "./helpers/ProtectedRoute";
 import { useAuth } from "./context/useAuth";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -15,6 +16,7 @@ export default function Home() {
 
   useEffect(() => {
     // Any state or data that should be reset when the user changes
+
   }, [user]);
 
 if (!isLoggedIn) {

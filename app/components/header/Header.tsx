@@ -6,6 +6,7 @@ import { getAllUsers, pendingFriendRequests } from "@/app/services/FriendService
 import { useDebounce } from "@/app/helpers/hooks";
 import FriendRequestModal from "./FriendRequestModal";
 
+
 const Header = () => {
   const [input, setInput] = useState<string>("");
   const [modalOpen, setModalOpen] = useState<boolean>(false);
@@ -58,7 +59,6 @@ const Header = () => {
   const fetchUsers = async () => {
     if (input !== "") {
       const results = await getAllUsers(input);
-      console.log(results!.data);
       setSearchResults(results!.data);
       
     } else if (input === "") {

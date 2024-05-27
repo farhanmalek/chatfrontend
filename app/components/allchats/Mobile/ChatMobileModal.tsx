@@ -1,15 +1,15 @@
-'use client'
-import { useEffect, useState } from "react";
-import FriendCard from "./FriendCard";
+"use client";
+
 import { UserProfile } from "@/app/models/UserModel";
 import { getFriends } from "@/app/services/FriendService";
+import { useEffect, useState } from "react";
+import FriendCard from "../FriendCard";
 
-interface ModalProps {
-  setIsModalOpen: (arg0: boolean) => void;
-  isModalOpen: boolean;
+interface ChatMobileModalProps {
+  setNewChatModal: (arg0: boolean) => void;
 }
 
-const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
+const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [searchInput, setSearchInput] = useState("");
 
@@ -28,13 +28,13 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
   }, [searchInput]);
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50 gap-2">
-      <div className="bg-base-100 p-4 rounded-lg w-full max-w-md h-[50%]">
+    <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
+      <div className="bg-base-100 p-4 rounded-lg w-[85%] max-w-md h-[50%]">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Find Friends</h2>
+          <h2 className="text-xl font-semibold">New Chat</h2>
           <button
             className="text-gray-500 hover:text-gray-700"
-            onClick={() => setIsModalOpen(!isModalOpen)}
+            onClick={() => setNewChatModal(false)}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -57,7 +57,6 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
             type="text"
             placeholder="Search friends..."
             className="w-full border rounded-md py-2 px-3 focus:outline-none focus:border-blue-500"
-            value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
           />
         </div>
@@ -71,4 +70,4 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
   );
 };
 
-export default FriendModal;
+export default ChatMobileModal;
