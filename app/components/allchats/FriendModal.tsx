@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import FriendCard from "./FriendCard";
 import { UserProfile } from "@/app/models/UserModel";
 import { getFriends } from "@/app/services/FriendService";
+import { createChat } from "@/app/services/ChatService";
+import { toast } from "react-toastify";
 
 interface ModalProps {
   setIsModalOpen: (arg0: boolean) => void;
@@ -12,6 +14,7 @@ interface ModalProps {
 const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [searchInput, setSearchInput] = useState("");
+  const [chatParticipantList, setChatParticipantList] = useState<UserProfile[]>([]);
 
   useEffect(() => {
     // Fetch friends when the component mounts or searchInput changes
@@ -27,11 +30,24 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
     fetchFriends();
   }, [searchInput]);
 
+  //Create the chat
+  const handleChatCreation = async () => {
+    try {
+      const response = await createChat(chatParticipantList);
+      toast.success("Chat created successfully");
+      setIsModalOpen(!isModalOpen);
+      setChatParticipantList([]);
+    } catch (error) {
+      console.error("Failed to create chat", error);
+    }
+
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50 gap-2">
-      <div className="bg-base-100 p-4 rounded-lg w-full max-w-md h-[50%]">
+      <div className="bg-base-100 p-4 rounded-lg w-full max-w-md h-[50%] flex flex-col">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-semibold">Find Friends</h2>
+          <h2 className="text-xl font-semibold">Create Chat</h2>
           <button
             className="text-gray-500 hover:text-gray-700"
             onClick={() => setIsModalOpen(!isModalOpen)}
@@ -63,9 +79,13 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
         </div>
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
           {friends.map((friend) => (
-            <FriendCard key={friend.userId} user={friend} action="Message" />
+            <FriendCard key={friend.userId} user={friend} action="Message" chatParticipantList = {chatParticipantList} setChatParticipantList ={setChatParticipantList} />
           ))}
         </div>
+        {
+          chatParticipantList.length > 0 && <button className="btn self-end mt-20" onClick={handleChatCreation}>Create Chat</button>
+        }
+
       </div>
     </div>
   );

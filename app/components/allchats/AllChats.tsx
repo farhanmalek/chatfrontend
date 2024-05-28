@@ -1,4 +1,5 @@
 'use client'
+import { useChat } from "@/app/context/chatContext";
 import ChatCard from "./ChatCard";
 import { IoMdAdd } from "react-icons/io";
 
@@ -9,6 +10,7 @@ interface ModalProps {
 }
 
 const AllChats = ({isModalOpen,setIsModalOpen}: ModalProps) => {
+  const {chats} = useChat()
 
 
   return (
@@ -28,7 +30,12 @@ const AllChats = ({isModalOpen,setIsModalOpen}: ModalProps) => {
         className="input input-bordered w-full p-2"
       />
       <div className="overflow-y-auto flex flex-col gap-2">
-        <ChatCard />
+        {
+          chats.length === 0 ? <p className="text-white">No chats</p> :
+          chats.map(chat => (
+            <ChatCard key={chat.chatId} chat={chat} />
+          ))
+        }
       </div>
     </div>
     </>

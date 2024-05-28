@@ -8,46 +8,49 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "./helpers/ProtectedRoute";
 import { useAuth } from "./context/useAuth";
 import { useRouter } from "next/navigation";
+import { ChatProvider } from "./context/chatContext";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showChat, setShowChat] = useState<boolean>(true);
-  const {user, isLoggedIn} = useAuth();
+  const { user, isLoggedIn } = useAuth();
 
   useEffect(() => {
     // Any state or data that should be reset when the user changes
-
   }, [user]);
 
-if (!isLoggedIn) {
+  if (!isLoggedIn) {
     return null;
   }
-  
+
   return (
     <ProtectedRoute>
-         <Header />
-      <div className="px-3">
-        <div className="md:flex h-[90vh] hidden ">
-          <AllChats isModalOpen={isModalOpen} setIsModalOpen={setIsModalOpen} />
-          <ChatBox />
-        </div>
-        {/* Mobile View */}
-        <div className="flex md:hidden h-[90vh]">
-          {showChat ? (
-            <ChatBox showChat={showChat} setShowChat={setShowChat} />
-          ) : (
-            <AllChatsM showChat={showChat} setShowChat={setShowChat} />
+      <Header />
+      <ChatProvider>
+        <div className="px-3">
+          <div className="md:flex h-[90vh] hidden ">
+            <AllChats
+              isModalOpen={isModalOpen}
+              setIsModalOpen={setIsModalOpen}
+            />
+            <ChatBox />
+          </div>
+          {isModalOpen && (
+            <FriendModal
+              isModalOpen={isModalOpen}
+              setIsModalOpen={setIsModalOpen}
+            />
           )}
+          {/* Mobile View */}
+          <div className="flex md:hidden h-[90vh]">
+            {showChat ? (
+              <ChatBox showChat={showChat} setShowChat={setShowChat} />
+            ) : (
+              <AllChatsM showChat={showChat} setShowChat={setShowChat} />
+            )}
+          </div>
         </div>
-        {isModalOpen && (
-          <FriendModal
-            isModalOpen={isModalOpen}
-            setIsModalOpen={setIsModalOpen}
-          />
-        )}
-      </div>
+      </ChatProvider>
     </ProtectedRoute>
-   
-   
   );
 }
