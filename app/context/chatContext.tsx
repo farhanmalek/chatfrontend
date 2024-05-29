@@ -38,8 +38,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     useEffect(() => {
-        refetchChats(); // Fetch chats once when the component mounts
-    }, [chats]);
+        refetchChats(); // Fetch chats once when the component mounts come back to this one
+    }, []);
 
     return (
         <ChatContext.Provider value={{ handleNewChat, chats, refetchChats }}>

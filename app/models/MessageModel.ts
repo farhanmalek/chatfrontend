@@ -1,6 +1,8 @@
+import { UserProfile } from "./UserModel"
+
 export type MessageModel = {
-    messageId: string,
-    sender: string,
+    chatId: number,
+    sender: UserProfile,
     content: string,
-    timestamp: string
+    sentAt?: string
 }

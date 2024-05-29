@@ -2,16 +2,27 @@
 import { useChat } from "@/app/context/chatContext";
 import ChatCard from "./ChatCard";
 import { IoMdAdd } from "react-icons/io";
+import { ChatModel } from "@/app/models/ChatModel";
 
 
 interface ModalProps {
   setIsModalOpen: (arg0: boolean) => void
   isModalOpen: boolean
+  selectedChat?: number | null
+  setSelectedChat?: (arg0: number | null) => void
+  alternateChatName?: string
+  setAlternateChatName?: (arg0: string) => void
 }
 
-const AllChats = ({isModalOpen,setIsModalOpen}: ModalProps) => {
+const AllChats = ({isModalOpen,setIsModalOpen, selectedChat, setSelectedChat, alternateChatName, setAlternateChatName}: ModalProps) => {
   const {chats} = useChat()
 
+  //handle chat selection
+  const handleChatSelection = (chat: ChatModel) => {
+    if (setSelectedChat) {
+      setSelectedChat(chat.id)
+    }
+  }
 
   return (
     <>
@@ -33,7 +44,7 @@ const AllChats = ({isModalOpen,setIsModalOpen}: ModalProps) => {
         {
           chats.length === 0 ? <p className="text-white">No chats</p> :
           chats.map(chat => (
-            <ChatCard key={chat.chatId} chat={chat} />
+            <div key={chat.id} onClick={() => handleChatSelection(chat)}><ChatCard chat={chat}  /></div>
           ))
         }
       </div>

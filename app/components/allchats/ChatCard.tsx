@@ -1,15 +1,14 @@
 import { useAuth } from "@/app/context/useAuth";
 import { ChatModel } from "@/app/models/ChatModel";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 
 interface ChatCardProps {
   chat: ChatModel;
 }
 
 const ChatCard = ({ chat }: ChatCardProps) => {
-  const [alternateChatName, setAlternateChatName] = useState<string>("");
   const { user } = useAuth();
-
+  const [alternateChatName, setAlternateChatName] = useState<string>("");
   // List of participants without the current user
   const chatParticipantsWithoutUser = useMemo(() => {
     return chat.participants.filter((p) => p.userId !== user?.userId);
@@ -29,11 +28,12 @@ const ChatCard = ({ chat }: ChatCardProps) => {
     } else {
       setAlternateChatName("No participants");
     }
+
   }, [chatParticipantsWithoutUser]);
 
   const displayChatName = useMemo(() => {
-    return chat.chatName ? chat.chatName : alternateChatName;
-  }, [chat.chatName, alternateChatName]);
+    return chat.name ? chat.name : alternateChatName;
+  }, [chat.name, alternateChatName]);
 
   return (
     <div className="bg-base-300 rounded-lg p-3 w-full">

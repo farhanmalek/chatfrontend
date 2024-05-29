@@ -42,11 +42,10 @@ export const createChat = async(participants: UserProfile[]) => {
 
 
 //edit the chat name
-export const editChatName = async(chatId: number, newName: string) => {
+export const changeChatName = async(chatId: number, newName: string) => {
+    console.log(chatId, newName)
     try {
-        const data = await axios.put<ChatModel>(api + `chats/${chatId}`, {
-            newName: newName
-        })
+        const data = await axios.put<ChatModel>(api + `chats/${chatId}?newChatName=${newName}`)
         return data
     } catch (error) {
         handleError(error)
