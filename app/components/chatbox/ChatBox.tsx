@@ -2,7 +2,7 @@
 import { ChatModel } from "@/app/models/ChatModel";
 import ChatBubble from "./ChatBubble";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { use, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useChat } from "@/app/context/chatContext";
 import { useAuth } from "@/app/context/useAuth";
 import ChatDropDown from "./ChatDropDown";
@@ -13,7 +13,8 @@ import {
 } from "@/app/services/ChatService";
 import { handleError } from "@/app/helpers/errorHandler";
 import { MessageModel } from "@/app/models/MessageModel";
-import hubConnection, { onReceiveMessage, sendMessage, startConnection } from "@/app/services/SignalRService";
+
+import * as signalR from "@microsoft/signalr";
 
 interface ChatProps {
   setShowChat?: (arg0: boolean) => void;
@@ -32,28 +33,54 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
   const [messages, setMessages] = useState<MessageModel[]>([]);
   const [content, setContent] = useState<string>("");
 
-    startConnection(); // Start the SignalR connection when the component mounts
+  //signalr connection
+  const [hubConnection, setHubConnection] =
+    useState<signalR.HubConnection | null>(null);
 
-  
-    // Set up event listener for receiving messages
-    onReceiveMessage((receivedUser, receivedMessage) => {
-      // Add the received message to the state
-      setMessages((prevMessages) => [...prevMessages, receivedMessage]);
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5148/chat?chatId=" + selectedChat)
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    setHubConnection(connection);
+
+    connection
+      .start()
+      .then(() => console.log("SignalR Connected."))
+      .catch((err) => {
+        console.log("Error while establishing connection: ", err);
+        setTimeout(
+          () => connection.start().catch((err) => console.log(err)),
+          5000
+        );
+      });
+
+    connection.on("ReceiveMessageByChatId", (user, message: MessageModel) => {
+      setMessages((prev) => [...prev, message]);
     });
 
-  ;
+    return () => {
+      connection.stop().catch((err) => console.log(err));
+    };
+  }, [selectedChat]);
 
-  const handleSendMessage = async (content: string) => {
-    // Create a new message object
+  const sendMessage = async () => {
     const newMessage: MessageModel = {
       chatId: selectedChat!,
-      sender: user!, // Assuming user is always available
       content: content,
+      sender: user!,
     };
-
+    if (content.trim() === "") return;
     try {
-      // Send the message using SignalR
-      await sendMessage(user!, newMessage, selectedChat!);
+      await hubConnection?.invoke(
+        "SendMessageByChatId",
+        user!,
+        newMessage,
+        selectedChat!
+      );
+      setContent("");
     } catch (error) {
       console.error(error);
     }
@@ -74,6 +101,22 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
     };
     fetchChatDetails();
   }, [selectedChat, chats]);
+
+  useEffect(() => {
+    const getAllMessages = async () => {
+      try {
+        if (chatData) {
+          const response = await getChatMessages(chatData.id);
+          if (response && response.data) {
+            setMessages(response.data);
+          }
+        }
+      } catch (error) {
+        handleError(error);
+      }
+    };
+    getAllMessages();
+  }, [chatData]);
 
   const chatParticipantsWithoutUser = useMemo(() => {
     if (!chatData) return [];
@@ -98,13 +141,11 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
     }
   }, [chatParticipantsWithoutUser]);
 
-  //handle dropdown
   const handleDropDown = () => {
     setShowDropDown(!showDropDown);
   };
 
   const handleSaveChatName = async () => {
-    //save chat name to db
     try {
       const response = await changeChatName(chatData!.id, newChatName);
       if (response && response.data) {
@@ -116,24 +157,6 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
       handleError(error);
     }
   };
-  //On mount, fetch all messages for the chat
-
-  useEffect(() => {
-    const getAllMessages = async () => {
-      try {
-        if (chatData) {
-          const response = await getChatMessages(chatData.id);
-          if (response && response.data) {
-            setMessages(response.data);
-          }
-        }
-      } catch (error) {
-        handleError(error);
-      }
-    };
-    getAllMessages();
-
-  },[chatData])
 
   return (
     <div className="flex-grow pl-2 gap-1 flex flex-col">
@@ -205,13 +228,9 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
       <div className="flex-grow h-[85%] ">
         {chatData ? (
           <div className="flex flex-col h-full overflow-y-scroll">
-            {messages.map((message,index) =>
+            {messages.map((message, index) =>
               message.sender.userId === user?.userId ? (
-                <ChatBubble
-                  key={index}
-                  message={message}
-                  self={true}
-                />
+                <ChatBubble key={index} message={message} self={true} />
               ) : (
                 <ChatBubble key={index} message={message} self={false} />
               )
@@ -221,16 +240,24 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
           <p>Select a chat to view messages</p>
         )}
       </div>
-
       <div className="flex gap-2">
-        <input
-          type="text"
-          placeholder="Send Message..."
-          className="input input-bordered flex-grow"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <button className="btn btn-neutral" onClick={() => handleSendMessage(content)}>Send</button>
+          <input
+            type="text"
+            placeholder="Send Message..."
+            className="input input-bordered flex-grow"
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && content.trim() !== ""){
+                e.preventDefault();
+                sendMessage();
+              }
+            }}
+          />
+          <button className="btn btn-neutral" type="submit" onClick={sendMessage}>
+            Send
+          </button>
+      
       </div>
     </div>
   );
