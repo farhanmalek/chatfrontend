@@ -8,13 +8,16 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "./helpers/ProtectedRoute";
 import { useAuth } from "./context/useAuth";
 import { ChatProvider } from "./context/chatContext";
+import { MessageModel } from "./models/MessageModel";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [showChat, setShowChat] = useState<boolean>(true);
   const { user, isLoggedIn } = useAuth();
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
-  const [alternateChatName, setAlternateChatName] = useState<string>("");
+  //Trying
+  const [messages, setMessages] = useState<MessageModel[]>([]);
+const [hubConnection, setHubConnection] = useState<signalR.HubConnection | null>(null);
 
   useEffect(() => {
     // Any state or data that should be reset when the user changes
@@ -35,6 +38,10 @@ export default function Home() {
               setIsModalOpen={setIsModalOpen}
               selectedChat={selectedChat}
               setSelectedChat={setSelectedChat}
+              messages={messages}
+              setMessages={setMessages}
+              hubConnection={hubConnection}
+              setHubConnection={setHubConnection}
     
             />
             {
@@ -43,7 +50,7 @@ export default function Home() {
                 <div className="flex-grow bg-secondary-content rounded-md p-5 ml-2">
                   <p className="text-white text-center">Select a chat to view messages</p>
                 </div>
-              ) : <ChatBox selectedChat ={selectedChat} />
+              ) : <ChatBox selectedChat ={selectedChat} messages={messages} hubConnection={hubConnection} />
             }
           </div>
           {isModalOpen && (
@@ -55,7 +62,7 @@ export default function Home() {
           {/* Mobile View */}
           <div className="flex md:hidden h-[90vh]">
             {showChat ? (
-              <ChatBox showChat={showChat} setShowChat={setShowChat} />
+              <ChatBox showChat={showChat} setShowChat={setShowChat} messages={messages} hubConnection={hubConnection} />
             ) : (
               <AllChatsM showChat={showChat} setShowChat={setShowChat} />
             )}

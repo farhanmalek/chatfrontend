@@ -2,7 +2,7 @@
 import { ChatModel } from "@/app/models/ChatModel";
 import ChatBubble from "./ChatBubble";
 import { IoMdArrowRoundBack } from "react-icons/io";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useChat } from "@/app/context/chatContext";
 import { useAuth } from "@/app/context/useAuth";
 import ChatDropDown from "./ChatDropDown";
@@ -13,16 +13,18 @@ import {
 } from "@/app/services/ChatService";
 import { handleError } from "@/app/helpers/errorHandler";
 import { MessageModel } from "@/app/models/MessageModel";
-
 import * as signalR from "@microsoft/signalr";
+
 
 interface ChatProps {
   setShowChat?: (arg0: boolean) => void;
   showChat?: boolean;
   selectedChat?: number | null;
+  messages: MessageModel[];
+  hubConnection: signalR.HubConnection | null;
 }
 
-const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
+const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatProps) => {
   const { chats, refetchChats } = useChat(); // get all chats
   const { user } = useAuth();
   const [chatData, setChatData] = useState<ChatModel | null>(null);
@@ -30,41 +32,8 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
   const [showDropDown, setShowDropDown] = useState<boolean>(false);
   const [editChatName, setEditChatName] = useState<boolean>(false);
   const [newChatName, setNewChatName] = useState<string>("");
-  const [messages, setMessages] = useState<MessageModel[]>([]);
   const [content, setContent] = useState<string>("");
 
-  //signalr connection
-  const [hubConnection, setHubConnection] =
-    useState<signalR.HubConnection | null>(null);
-
-  useEffect(() => {
-    const connection = new signalR.HubConnectionBuilder()
-      .withUrl("http://localhost:5148/chat?chatId=" + selectedChat)
-      .withAutomaticReconnect()
-      .configureLogging(signalR.LogLevel.Information)
-      .build();
-
-    setHubConnection(connection);
-
-    connection
-      .start()
-      .then(() => console.log("SignalR Connected."))
-      .catch((err) => {
-        console.log("Error while establishing connection: ", err);
-        setTimeout(
-          () => connection.start().catch((err) => console.log(err)),
-          5000
-        );
-      });
-
-    connection.on("ReceiveMessageByChatId", (user, message: MessageModel) => {
-      setMessages((prev) => [...prev, message]);
-    });
-
-    return () => {
-      connection.stop().catch((err) => console.log(err));
-    };
-  }, [selectedChat]);
 
   const sendMessage = async () => {
     const newMessage: MessageModel = {
@@ -100,23 +69,8 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
       }
     };
     fetchChatDetails();
-  }, [selectedChat, chats]);
+  }, [selectedChat]);
 
-  useEffect(() => {
-    const getAllMessages = async () => {
-      try {
-        if (chatData) {
-          const response = await getChatMessages(chatData.id);
-          if (response && response.data) {
-            setMessages(response.data);
-          }
-        }
-      } catch (error) {
-        handleError(error);
-      }
-    };
-    getAllMessages();
-  }, [chatData]);
 
   const chatParticipantsWithoutUser = useMemo(() => {
     if (!chatData) return [];
@@ -157,6 +111,19 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
       handleError(error);
     }
   };
+
+    // Use useEffect to scroll to bottom when messages change
+
+    const chatEndRef = useRef<any>();
+
+    // Function to scroll to bottom
+    const scrollToBottom = () => {
+      chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    };
+
+    useEffect(() => {
+      scrollToBottom();
+    }, [messages]);
 
   return (
     <div className="flex-grow pl-2 gap-1 flex flex-col">
@@ -235,29 +202,30 @@ const ChatBox = ({ setShowChat, selectedChat }: ChatProps) => {
                 <ChatBubble key={index} message={message} self={false} />
               )
             )}
+            <div ref={chatEndRef} />
+
           </div>
         ) : (
           <p>Select a chat to view messages</p>
         )}
       </div>
       <div className="flex gap-2">
-          <input
-            type="text"
-            placeholder="Send Message..."
-            className="input input-bordered flex-grow"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && content.trim() !== ""){
-                e.preventDefault();
-                sendMessage();
-              }
-            }}
-          />
-          <button className="btn btn-neutral" type="submit" onClick={sendMessage}>
-            Send
-          </button>
-      
+        <input
+          type="text"
+          placeholder="Send Message..."
+          className="input input-bordered flex-grow"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && content.trim() !== "") {
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
+        />
+        <button className="btn btn-neutral" type="button" onClick={sendMessage}>
+          Send
+        </button>
       </div>
     </div>
   );
