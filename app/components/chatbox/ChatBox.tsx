@@ -21,11 +21,12 @@ interface ChatProps {
   showChat?: boolean;
   selectedChat?: number | null;
   messages: MessageModel[];
+  setMessages: any;
   hubConnection: signalR.HubConnection | null;
 }
 
-const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatProps) => {
-  const { chats, refetchChats } = useChat(); // get all chats
+const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection, setMessages }: ChatProps) => {
+  const { refetchChats } = useChat(); // get all chats
   const { user } = useAuth();
   const [chatData, setChatData] = useState<ChatModel | null>(null);
   const [altChatName, setAltChatName] = useState<string>("");
@@ -34,6 +35,10 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatPro
   const [newChatName, setNewChatName] = useState<string>("");
   const [content, setContent] = useState<string>("");
 
+
+  const chatBoxRef = useRef<HTMLDivElement>(null);
+
+  const [forceUpdateKey, setForceUpdateKey] = useState(0);
 
   const sendMessage = async () => {
     const newMessage: MessageModel = {
@@ -69,7 +74,7 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatPro
       }
     };
     fetchChatDetails();
-  }, [selectedChat]);
+  }, [selectedChat, forceUpdateKey]);
 
 
   const chatParticipantsWithoutUser = useMemo(() => {
@@ -104,6 +109,7 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatPro
       const response = await changeChatName(chatData!.id, newChatName);
       if (response && response.data) {
         setEditChatName(false);
+        setForceUpdateKey(prevKey => prevKey + 1);
       }
       refetchChats();
       setNewChatName("");
@@ -124,6 +130,7 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatPro
     useEffect(() => {
       scrollToBottom();
     }, [messages]);
+
 
   return (
     <div className="flex-grow pl-2 gap-1 flex flex-col">
@@ -159,8 +166,8 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatPro
                 </button>
               </>
             ) : (
-              <span className="btn btn-ghost text-xl">
-                {chatData?.name || altChatName}
+              <span className="btn btn-ghost text-xl" key={forceUpdateKey}>
+                {chatData?.name || altChatName} 
               </span>
             )}
           </div>
@@ -192,7 +199,7 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatPro
           </button>
         </div>
       </div>
-      <div className="flex-grow h-[85%] ">
+      <div className="flex-grow h-[85%] " ref={chatBoxRef}>
         {chatData ? (
           <div className="flex flex-col h-full overflow-y-scroll">
             {messages.map((message, index) =>

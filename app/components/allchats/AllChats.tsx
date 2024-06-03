@@ -4,9 +4,10 @@ import ChatCard from "./ChatCard";
 import { IoMdAdd } from "react-icons/io";
 import { ChatModel } from "@/app/models/ChatModel";
 import * as signalR from "@microsoft/signalr";
-import { getChatMessages } from "@/app/services/ChatService";
+import { getAllChats, getChatMessages } from "@/app/services/ChatService";
 import { handleError } from "@/app/helpers/errorHandler";
 import { MessageModel } from "@/app/models/MessageModel";
+import { useEffect, useState } from "react";
 
 
 interface ModalProps {
@@ -22,9 +23,11 @@ interface ModalProps {
   setHubConnection: (arg0: signalR.HubConnection | null) => void
 }
 
-const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,setMessages,setHubConnection}: ModalProps) => {
+const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,setMessages,setHubConnection, messages}: ModalProps) => {
   const {chats} = useChat()
+  const [lastMessages, setLastMessages] = useState<{ [key: number]: MessageModel }>({});
 
+  
   //handle chat selection
   //when the chat is selected, get all the messages for that chat and setup the signal r connection for it
   const handleChatSelection = (chat: ChatModel) => {
@@ -37,6 +40,7 @@ const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,se
           if (chat) {
             const response = await getChatMessages(chat.id);
             if (response && response.data) {
+          
               setMessages(response.data);
             }
           }
@@ -63,14 +67,13 @@ const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,se
       .start()
       .then(() => console.log("SignalR Connected."))
       .catch((err) => {
-        console.log("Error while establishing connection: ", err);
         setTimeout(() => connection.start().catch((err) => console.log(err)), 5000);
       });
 
         connection.on("ReceiveMessageByChatId", (user, message: MessageModel) => {
-          console.log("hit")
-          setMessages((prev:MessageModel[]) => [...prev, message]);
-          console.log("messages",message)
+          setLastMessages((prev) => ({ ...prev, [chat.id]: message }));
+          setMessages((prev:MessageModel[]) => [...prev,  message]);
+       
         });
       
       
@@ -81,27 +84,23 @@ const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,se
     }
   }
 
+
   return (
     <>
         <div className="md:flex flex-col p-2 gap-3 rounded-md bg-secondary-content hidden w-[20%] ">
       <div className="flex justify-between">
-        <p className="text-white font-bold text-2xl">Chats</p>
+        <p className="text-white font-bold text-2xl p-2">Chats</p>
       
        <IoMdAdd className="self-center w-9" onClick={() => {
         setIsModalOpen(!isModalOpen)
        }}/>
 
       </div>
-      <input
-        type="text"
-        placeholder="Search chats"
-        className="input input-bordered w-full p-2"
-      />
       <div className="overflow-y-auto flex flex-col gap-2">
         {
           chats.length === 0 ? <p className="text-white">No chats</p> :
           chats.map(chat => (
-            <div key={chat.id} onClick={() => handleChatSelection(chat)}><ChatCard chat={chat}  /></div>
+            <div key={chat.id} onClick={() => handleChatSelection(chat)}><ChatCard chat={chat} lastMessage={lastMessages[chat.id]} /></div>
           ))
         }
       </div>

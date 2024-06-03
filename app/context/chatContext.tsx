@@ -30,15 +30,21 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         try {
             const response = await getAllChats();
             if (response && response.data) {
-                setChats(response.data); 
-            }
+                // Sort the messages within each chat
+                const sortedChats = response.data.map((chat: ChatModel) => {
+                  const sortedMessages = chat.messages.sort((a, b) => Date.parse(a.sentAt!) - Date.parse(b.sentAt!));
+                  return { ...chat, messages: sortedMessages };
+                });
+          
+                setChats(sortedChats);
+              }
         } catch (error) {
             toast.warning("Server Error Occurred");
         }
     };
 
     useEffect(() => {
-        refetchChats(); // Fetch chats once when the component mounts come back to this one
+        refetchChats();
     }, []);
 
     return (

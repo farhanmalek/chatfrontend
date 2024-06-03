@@ -50,7 +50,7 @@ const [hubConnection, setHubConnection] = useState<signalR.HubConnection | null>
                 <div className="flex-grow bg-secondary-content rounded-md p-5 ml-2">
                   <p className="text-white text-center">Select a chat to view messages</p>
                 </div>
-              ) : <ChatBox selectedChat ={selectedChat} messages={messages} hubConnection={hubConnection} />
+              ) : <ChatBox selectedChat ={selectedChat} messages={messages} hubConnection={hubConnection} setMessages={setMessages} />
             }
           </div>
           {isModalOpen && (
@@ -62,7 +62,7 @@ const [hubConnection, setHubConnection] = useState<signalR.HubConnection | null>
           {/* Mobile View */}
           <div className="flex md:hidden h-[90vh]">
             {showChat ? (
-              <ChatBox showChat={showChat} setShowChat={setShowChat} messages={messages} hubConnection={hubConnection} />
+              <ChatBox showChat={showChat} setShowChat={setShowChat} messages={messages} hubConnection={hubConnection} setMessages={setMessages} />
             ) : (
               <AllChatsM showChat={showChat} setShowChat={setShowChat} />
             )}
