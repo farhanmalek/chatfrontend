@@ -27,6 +27,28 @@ const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,se
   const {chats} = useChat()
   const [lastMessages, setLastMessages] = useState<{ [key: number]: MessageModel }>({});
 
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5148/allchat")
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    connection.on("ReceiveLastMessageUpdate", (chatId, message) => {
+        setLastMessages(prev => ({ ...prev, [chatId]: message }));
+    });
+
+    connection.start()
+        .then(() => console.log("SignalR ChatCardHub Connected."))
+        .catch((err) => {
+            setTimeout(() => connection.start().catch(err => console.log(err)), 5000);
+        });
+
+    return () => {
+        connection.stop();
+    };
+}, []);
+
   
   //handle chat selection
   //when the chat is selected, get all the messages for that chat and setup the signal r connection for it
@@ -71,7 +93,7 @@ const AllChats = ({isModalOpen,setIsModalOpen, setSelectedChat, hubConnection,se
       });
 
         connection.on("ReceiveMessageByChatId", (user, message: MessageModel) => {
-          setLastMessages((prev) => ({ ...prev, [chat.id]: message }));
+          // setLastMessages((prev) => ({ ...prev, [chat.id]: message }));
           setMessages((prev:MessageModel[]) => [...prev,  message]);
        
         });

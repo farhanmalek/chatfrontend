@@ -2,7 +2,7 @@
 import ChatCard from "../ChatCard";
 import { IoMdAdd } from "react-icons/io";
 import { IoMdPersonAdd } from "react-icons/io";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FriendCard from "../FriendCard";
 import ChatMobileModal from "./ChatMobileModal";
 import FriendMobileModal from "./FriendMobileModal";
@@ -31,6 +31,28 @@ const AllChatsM = ({ setShowChat, setSelectedChat, hubConnection,setMessages,set
   const [newFriendModal, setNewFriendModal] = useState<boolean>(false);
   const [lastMessages, setLastMessages] = useState<{ [key: number]: MessageModel }>({});
   const {chats} = useChat();
+
+  useEffect(() => {
+    const connection = new signalR.HubConnectionBuilder()
+        .withUrl("http://localhost:5148/allchat")
+        .withAutomaticReconnect()
+        .configureLogging(signalR.LogLevel.Information)
+        .build();
+
+    connection.on("ReceiveLastMessageUpdate", (chatId, message) => {
+        setLastMessages(prev => ({ ...prev, [chatId]: message }));
+    });
+
+    connection.start()
+        .then(() => console.log("SignalR ChatCardHub Connected."))
+        .catch((err) => {
+            setTimeout(() => connection.start().catch(err => console.log(err)), 5000);
+        });
+
+    return () => {
+        connection.stop();
+    };
+}, []);
 
   //handlechatselection
   const handleChatSelection = (chat: ChatModel) => {
