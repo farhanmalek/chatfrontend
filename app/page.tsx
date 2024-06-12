@@ -12,7 +12,7 @@ import { MessageModel } from "./models/MessageModel";
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [showChat, setShowChat] = useState<boolean>(true);
+  const [showChat, setShowChat] = useState<boolean>(false);
   const { user, isLoggedIn } = useAuth();
   const [selectedChat, setSelectedChat] = useState<number | null>(null);
   //Trying
@@ -62,9 +62,16 @@ const [hubConnection, setHubConnection] = useState<signalR.HubConnection | null>
           {/* Mobile View */}
           <div className="flex md:hidden h-[90vh]">
             {showChat ? (
-              <ChatBox showChat={showChat} setShowChat={setShowChat} messages={messages} hubConnection={hubConnection} setMessages={setMessages} />
+              <ChatBox showChat={showChat} setShowChat={setShowChat} messages={messages} hubConnection={hubConnection} setMessages={setMessages} selectedChat={selectedChat} />
             ) : (
-              <AllChatsM showChat={showChat} setShowChat={setShowChat} />
+              <AllChatsM showChat={showChat} 
+              setShowChat={setShowChat} 
+              selectedChat={selectedChat}
+              setSelectedChat={setSelectedChat}
+              messages={messages}
+              setMessages={setMessages}
+              hubConnection={hubConnection}
+              setHubConnection={setHubConnection} />
             )}
           </div>
         </div>

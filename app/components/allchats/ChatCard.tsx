@@ -19,6 +19,8 @@ const ChatCard = ({ chat, lastMessage }: ChatCardProps) => {
   const [chatMessages, setChatMessages] = useState<MessageModel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   // List of participants without the current user
+
+  
   const chatParticipantsWithoutUser = useMemo(() => {
     return chat.participants.filter((p) => p.userId !== user?.userId);
   }, [chat.participants, user]);
@@ -63,7 +65,7 @@ const ChatCard = ({ chat, lastMessage }: ChatCardProps) => {
   }, [chat.name, alternateChatName]);
 
   return (
-    <div className="bg-base-300 rounded-lg p-3 w-full">
+    <div className="bg-base-300 rounded-lg p-3 w-full cursor-pointer">
       <p className="font-bold">{displayChatName}</p>
       {isLoading ? (
       <p>Loading...</p>

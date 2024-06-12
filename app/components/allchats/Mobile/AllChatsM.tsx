@@ -6,15 +6,86 @@ import { useState } from "react";
 import FriendCard from "../FriendCard";
 import ChatMobileModal from "./ChatMobileModal";
 import FriendMobileModal from "./FriendMobileModal";
+import { useChat } from "@/app/context/chatContext";
+import { ChatModel } from "@/app/models/ChatModel";
+import { MessageModel } from "@/app/models/MessageModel";
+import { getChatMessages } from "@/app/services/ChatService";
+import { handleError } from "@/app/helpers/errorHandler";
+import * as signalR from "@microsoft/signalr";
 
 interface ChatProps {
   setShowChat?: (arg0: boolean) => void;
   showChat?: boolean;
+  selectedChat?: number | null
+  setSelectedChat?: (arg0: number | null) => void
+  alternateChatName?: string
+  setAlternateChatName?: (arg0: string) => void
+  messages: MessageModel[]
+  setMessages: any
+  hubConnection: signalR.HubConnection | null
+  setHubConnection: (arg0: signalR.HubConnection | null) => void
 }
 
-const AllChatsM = ({ setShowChat, showChat }: ChatProps) => {
+const AllChatsM = ({ setShowChat, setSelectedChat, hubConnection,setMessages,setHubConnection }: ChatProps) => {
   const [newChatModal, setNewChatModal] = useState<boolean>(false);
   const [newFriendModal, setNewFriendModal] = useState<boolean>(false);
+  const [lastMessages, setLastMessages] = useState<{ [key: number]: MessageModel }>({});
+  const {chats} = useChat();
+
+  //handlechatselection
+  const handleChatSelection = (chat: ChatModel) => {
+    if (setSelectedChat) {
+      setSelectedChat(chat.id)
+
+      //get all messages for the selected chat
+      const getAllMessages = async () => {
+        try {
+          if (chat) {
+            const response = await getChatMessages(chat.id);
+            if (response && response.data) {
+          
+              setMessages(response.data);
+            }
+          }
+        } catch (error) {
+          handleError(error);
+        }
+      };
+      getAllMessages();
+
+      //setup signal r connection
+      //if a connection exists close it first
+      if (hubConnection) {
+        hubConnection.stop();
+        setHubConnection(null);
+      }
+
+      const connection = new signalR.HubConnectionBuilder()
+      .withUrl("http://localhost:5148/chat?chatId=" + chat.id)
+      .withAutomaticReconnect()
+      .configureLogging(signalR.LogLevel.Information)
+      .build();
+
+    connection
+      .start()
+      .then(() => console.log("SignalR Connected."))
+      .catch((err) => {
+        setTimeout(() => connection.start().catch((err) => console.log(err)), 5000);
+      });
+
+        connection.on("ReceiveMessageByChatId", (user, message: MessageModel) => {
+          setLastMessages((prev) => ({ ...prev, [chat.id]: message }));
+          setMessages((prev:MessageModel[]) => [...prev,  message]);
+       
+        });
+      
+      
+      
+      setHubConnection(connection);
+
+      
+    }
+  }
 
   return (
     <div className="flex flex-col p-2 gap-3 rounded-md bg-secondary-content w-full">
@@ -31,14 +102,16 @@ const AllChatsM = ({ setShowChat, showChat }: ChatProps) => {
           />
         </div>
       </div>
-      <input
-        type="text"
-        placeholder="Search chats"
-        className="input input-bordered w-full p-2"
-      />
+   
       <div className="overflow-y-auto flex flex-col gap-2">
-        <div onClick={() => setShowChat && setShowChat(true)}>
-          <ChatCard />
+        <div onClick={() => setShowChat && setShowChat(true)} className="flex flex-col gap-3">
+        {
+          chats.length === 0 ? <p className="text-white">No chats</p> :
+          chats.map(chat => (
+            <div key={chat.id} onClick={() => handleChatSelection(chat)}><ChatCard chat={chat} lastMessage={lastMessages[chat.id]} /></div>
+          ))
+        }
+         
         </div>
       </div>
       {/* New Chat Modal */}
