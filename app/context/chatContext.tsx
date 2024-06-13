@@ -8,6 +8,7 @@ type ChatContextType = {
     handleNewChat: (participants: UserProfile[]) => Promise<void>;
     chats: ChatModel[];
     refetchChats: () => void;
+    setChats: React.Dispatch<React.SetStateAction<ChatModel[]>>;
 };
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType);
@@ -48,7 +49,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     }, []);
 
     return (
-        <ChatContext.Provider value={{ handleNewChat, chats, refetchChats }}>
+        <ChatContext.Provider value={{ handleNewChat, chats, refetchChats, setChats }}>
             {children}
         </ChatContext.Provider>
     );

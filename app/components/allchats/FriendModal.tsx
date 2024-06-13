@@ -16,7 +16,7 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [chatParticipantList, setChatParticipantList] = useState<UserProfile[]>([]);
-  const { refetchChats } = useChat();
+
 
   useEffect(() => {
     // Fetch friends when the component mounts or searchInput changes
@@ -39,7 +39,6 @@ const FriendModal = ({ setIsModalOpen, isModalOpen }: ModalProps) => {
       toast.success("Chat created successfully");
       setIsModalOpen(!isModalOpen);
       setChatParticipantList([]);
-      refetchChats(); // Fetch chats once when the component mounts
     } catch (error) {
       console.error("Failed to create chat", error);
     }
