@@ -137,13 +137,13 @@ const AllChats = ({
       <div className="flex justify-between">
         <p className="text-white font-bold text-2xl p-2">Chats</p>
         <IoMdAdd
-          className="self-center w-9"
+          className="self-center w-9 cursor-pointer"
           onClick={() => setIsModalOpen(!isModalOpen)}
         />
       </div>
       <div className="overflow-y-auto flex flex-col gap-2">
         {chats.length === 0 ? (
-          <p className="text-white">No chats</p>
+          <p className="text-center">No chats...</p>
         ) : (
           Array.from(new Set(chats.map((chat) => chat.id))).map((id) => {
             const chat = chats.find((c) => c.id === id); // Find the chat object by id

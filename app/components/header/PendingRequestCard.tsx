@@ -4,27 +4,31 @@ import React, { useEffect, useState } from 'react'
 
 interface PendingRequestCardProps {
     user: UserProfile
-    getPendingRequests: () => void
+    request: UserProfile
+    index: number
+    setPendingRequests: React.Dispatch<React.SetStateAction<UserProfile[]>>;
+  
 }
 
-const PendingRequestCard = ({user, getPendingRequests}: PendingRequestCardProps) => {
-  const [decision, setDecision] = useState<'accept'| 'decline'>();
+const PendingRequestCard = ({user,request,index,setPendingRequests}: PendingRequestCardProps) => {
+  const [decision, setDecision] = useState<'accept'| 'decline' | null>(null);
 
   const handleDecision = async (action: 'accept' | 'decline') => {
     setDecision(action);
+    setTimeout(() => {
+      
+      setPendingRequests((prev) => prev.filter((_, i) => i !== index)); //Remove the request from the list
+    },1000)
   }
-
-  const makeDecisionCall = async () => {
-    if(decision){
-      const response = await handleFriendRequest(user, decision);
-    }
   
-  }
-
-  //Comeback to this, need to make the friend requests dissapear after decision is made
   useEffect(() => {
+    const makeDecisionCall = async () => {
+      if(decision){
+          await handleFriendRequest(user, decision);
+      }
+    
+    }
     makeDecisionCall();
-  getPendingRequests();
   },[decision])
 
   return (

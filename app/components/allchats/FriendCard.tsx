@@ -1,6 +1,7 @@
 import { useChat } from "@/app/context/chatContext"
 import { UserProfile } from "@/app/models/UserModel"
 import { checkStatus, sendFriendRequest } from "@/app/services/FriendService"
+import * as signalR from "@microsoft/signalr"
 import { useEffect, useState } from "react"
 import { toast } from "react-toastify"
 
@@ -9,9 +10,10 @@ user: UserProfile
 action?: 'Add' | 'Message'
 chatParticipantList?: UserProfile[]
 setChatParticipantList?: (arg0: any) => void
+setPendingRequests?: any
 }
 
-const FriendCard = ({user, action, chatParticipantList, setChatParticipantList}:FriendCardProps) => {
+const FriendCard = ({user, action, chatParticipantList,setPendingRequests, setChatParticipantList}:FriendCardProps) => {
 
     const [status, setStatus] = useState<string>('')
 
@@ -39,6 +41,8 @@ const FriendCard = ({user, action, chatParticipantList, setChatParticipantList}:
     } else {
       toast.error("Error sending friend request")
     }
+
+
   }
 
   const addToParticipantList = () => {

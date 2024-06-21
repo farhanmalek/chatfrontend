@@ -12,6 +12,7 @@ import { MessageModel } from "@/app/models/MessageModel";
 import { getChatMessages } from "@/app/services/ChatService";
 import { handleError } from "@/app/helpers/errorHandler";
 import * as signalR from "@microsoft/signalr";
+import { useAuth } from "@/app/context/useAuth";
 
 interface ChatProps {
   setShowChat?: (arg0: boolean) => void;
@@ -30,7 +31,8 @@ const AllChatsM = ({ setShowChat, setSelectedChat, hubConnection,setMessages,set
   const [newChatModal, setNewChatModal] = useState<boolean>(false);
   const [newFriendModal, setNewFriendModal] = useState<boolean>(false);
   const [lastMessages, setLastMessages] = useState<{ [key: number]: MessageModel }>({});
-  const {chats} = useChat();
+  const {chats, setChats} = useChat();
+  const { user } = useAuth();
 
   useEffect(() => {
     const connection = new signalR.HubConnectionBuilder()
@@ -53,6 +55,34 @@ const AllChatsM = ({ setShowChat, setSelectedChat, hubConnection,setMessages,set
         connection.stop();
     };
 }, []);
+
+useEffect(() => {
+  const connection = new signalR.HubConnectionBuilder()
+    .withUrl(`http://localhost:5148/createdchats?userId=${user?.userId}`)
+    .withAutomaticReconnect()
+    .configureLogging(signalR.LogLevel.Information)
+    .build();
+
+  connection.on("NewChatCreated", (chat: ChatModel) => {
+    setChats((prev) => [chat, ...prev]);
+  });
+
+  connection
+    .start()
+    .then(() => console.log("SignalR ChatCardHub Connected."))
+    .catch((err) => {
+      setTimeout(
+        () => connection.start().catch((err) => console.log(err)),
+        5000
+      );
+    });
+
+  return () => {
+    connection.stop();
+  };
+}, []);
+
+
 
   //handlechatselection
   const handleChatSelection = (chat: ChatModel) => {
@@ -112,7 +142,7 @@ const AllChatsM = ({ setShowChat, setSelectedChat, hubConnection,setMessages,set
   return (
     <div className="flex flex-col p-2 gap-3 rounded-md bg-secondary-content w-full">
       <div className="flex justify-between items-center">
-        <p className="text-white font-bold text-2xl">Chats</p>
+        <p className="text-white font-bold text-2xl p-2">Chats</p>
         <div className="flex gap-2">
           <IoMdAdd
             className="self-center w-9 cursor-pointer"
@@ -127,12 +157,18 @@ const AllChatsM = ({ setShowChat, setSelectedChat, hubConnection,setMessages,set
    
       <div className="overflow-y-auto flex flex-col gap-2">
         <div onClick={() => setShowChat && setShowChat(true)} className="flex flex-col gap-3">
-        {
-          chats.length === 0 ? <p className="text-white">No chats</p> :
-          chats.map(chat => (
-            <div key={chat.id} onClick={() => handleChatSelection(chat)}><ChatCard chat={chat} lastMessage={lastMessages[chat.id]} /></div>
-          ))
-        }
+        {chats.length === 0 ? (
+          <p className="text-center">No chats...</p>
+        ) : (
+          Array.from(new Set(chats.map((chat) => chat.id))).map((id) => {
+            const chat = chats.find((c) => c.id === id); // Find the chat object by id
+            return (
+              <div key={chat!.id} onClick={() => handleChatSelection(chat!)}>
+                <ChatCard chat={chat!} lastMessage={lastMessages[chat!.id]} />
+              </div>
+            );
+          })
+        )}
          
         </div>
       </div>

@@ -25,7 +25,7 @@ interface ChatProps {
   hubConnection: signalR.HubConnection | null;
 }
 
-const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection, setMessages }: ChatProps) => {
+const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection }: ChatProps) => {
   const { refetchChats } = useChat(); // get all chats
   const { user } = useAuth();
   const [chatData, setChatData] = useState<ChatModel | null>(null);
@@ -199,8 +199,8 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection, setMessag
           </button>
         </div>
       </div>
-      <div className="flex-grow h-[85%] " ref={chatBoxRef}>
-        {chatData ? (
+      <div className="flex-grow h-[85%]" ref={chatBoxRef}>
+        {chatData && (
           <div className="flex flex-col h-full overflow-y-scroll">
             {messages.map((message, index) =>
               message.sender.userId === user?.userId ? (
@@ -212,8 +212,6 @@ const ChatBox = ({ setShowChat, selectedChat, messages, hubConnection, setMessag
             <div ref={chatEndRef} />
 
           </div>
-        ) : (
-          <p>Select a chat to view messages</p>
         )}
       </div>
       <div className="flex gap-2">

@@ -47,8 +47,8 @@ const [hubConnection, setHubConnection] = useState<signalR.HubConnection | null>
             {
               // If selected chat is null, show a message
               selectedChat === null ? (
-                <div className="flex-grow bg-secondary-content rounded-md p-5 ml-2">
-                  <p className="text-white text-center">Select a chat to view messages</p>
+                <div className="flex-grow bg-secondary-content rounded-md p-5 ml-2 flex justify-center items-center">
+                  <p>Select a chat to view messages</p>
                 </div>
               ) : <ChatBox selectedChat ={selectedChat} messages={messages} hubConnection={hubConnection} setMessages={setMessages} />
             }
