@@ -4,6 +4,7 @@ import { UserProfile } from "@/app/models/UserModel";
 import { getFriends } from "@/app/services/FriendService";
 import { useEffect, useState } from "react";
 import FriendCard from "../FriendCard";
+import Spinner from "@/app/loading/Spinner";
 
 interface ChatMobileModalProps {
   setNewChatModal: (arg0: boolean) => void;
@@ -12,13 +13,16 @@ interface ChatMobileModalProps {
 const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [searchInput, setSearchInput] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     // Fetch friends when the component mounts or searchInput changes
     const fetchFriends = async () => {
+      setLoading(true);
       try {
         const response = await getFriends(searchInput);
         setFriends(response!.data);
+        setLoading(false);
       } catch (error) {
         console.error("Failed to fetch friends", error);
       }
@@ -61,9 +65,28 @@ const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
           />
         </div>
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
-          {friends.map((friend) => (
-            <FriendCard key={friend.userId} user={friend} action="Message" />
-          ))}
+          {loading ? (
+            <div className="flex justify-center p-10">
+              <Spinner />
+            </div>
+          ) : (
+            <>
+            {
+              friends.length === 0 && (
+                <p className="text-center p-10">No friends found...</p>
+              )
+            }
+              {friends.map((friend) => (
+                <FriendCard
+                  key={friend.userId}
+                  user={friend}
+                  action="Message"
+                />
+              ))}
+            </>
+          ) 
+          
+          }
         </div>
       </div>
     </div>

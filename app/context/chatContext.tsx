@@ -9,12 +9,15 @@ type ChatContextType = {
     chats: ChatModel[];
     refetchChats: () => void;
     setChats: React.Dispatch<React.SetStateAction<ChatModel[]>>;
+    loading: boolean;
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 const ChatContext = createContext<ChatContextType>({} as ChatContextType);
 
 export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     const [chats, setChats] = useState<ChatModel[]>([] as ChatModel[]);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const handleNewChat = async (participants: UserProfile[]) => {
         try {
@@ -36,8 +39,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                   const sortedMessages = chat.messages.sort((a, b) => Date.parse(a.sentAt!) - Date.parse(b.sentAt!));
                   return { ...chat, messages: sortedMessages };
                 });
+
           
                 setChats(sortedChats);
+                setLoading(false);
               }
         } catch (error) {
             toast.warning("Server Error Occurred");
@@ -45,11 +50,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
     };
 
     useEffect(() => {
+        setLoading(true);
         refetchChats();
     }, []);
 
     return (
-        <ChatContext.Provider value={{ handleNewChat, chats, refetchChats, setChats }}>
+        <ChatContext.Provider value={{ handleNewChat, chats, refetchChats, setChats, loading, setLoading }}>
             {children}
         </ChatContext.Provider>
     );

@@ -4,6 +4,7 @@ import { useDebounce } from "@/app/helpers/hooks";
 import { getAllUsers } from "@/app/services/FriendService";
 import { UserProfile } from "@/app/models/UserModel";
 import FriendCard from "../FriendCard";
+import Spinner from "@/app/loading/Spinner";
 
 interface FriendMobileModalProps {
   setNewFriendModal: (arg0: boolean) => void;
@@ -13,6 +14,7 @@ const FriendMobileModal = ({ setNewFriendModal }: FriendMobileModalProps) => {
   const [input, setInput] = useState<string>("");
   const [searchResults, setSearchResults] = useState<UserProfile[]>([]);
   const debouncedSearch = useDebounce(input);
+  const [loading, setLoading] = useState<boolean>(false);
 
   function handleSearch(e: React.ChangeEvent<HTMLInputElement>) {
     setInput(e.target.value);
@@ -21,6 +23,7 @@ const FriendMobileModal = ({ setNewFriendModal }: FriendMobileModalProps) => {
   const fetchUsers = async () => {
     try {
       if (input.trim() !== "") {
+        setLoading(true);
         const results = await getAllUsers(input);
         setSearchResults(results!.data);
       } else {
@@ -29,6 +32,8 @@ const FriendMobileModal = ({ setNewFriendModal }: FriendMobileModalProps) => {
     } catch (error) {
       console.error("Error fetching users:", error);
       setSearchResults([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,12 +78,24 @@ const FriendMobileModal = ({ setNewFriendModal }: FriendMobileModalProps) => {
         <div className="overflow-y-auto flex flex-col gap-3 py-2 max-h-[65%]">
           {input === "" ? (
             <p className="text-white p-3 italic text-center">Search for friends...</p>
-          ) : searchResults.length > 0 ? (
-            searchResults.map((user: UserProfile) => (
-              <FriendCard key={user.userId} user={user} action={"Add"} />
-            ))
           ) : (
-            <p className="text-white p-3 italic text-center">No Friends Found</p>
+            <>
+              {loading ? (
+                <div className="flex justify-center p-10">
+                  <Spinner />
+                </div>
+              ) : (
+                <>
+                  {searchResults.length > 0 ? (
+                    searchResults.map((user: UserProfile) => (
+                      <FriendCard key={user.userId} user={user} action={"Add"} />
+                    ))
+                  ) : (
+                    <p className="text-white p-3 italic text-center">No results found...</p>
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       </div>

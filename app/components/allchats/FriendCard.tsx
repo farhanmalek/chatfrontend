@@ -1,4 +1,5 @@
 import { useChat } from "@/app/context/chatContext"
+import Spinner from "@/app/loading/Spinner"
 import { UserProfile } from "@/app/models/UserModel"
 import { checkStatus, sendFriendRequest } from "@/app/services/FriendService"
 import * as signalR from "@microsoft/signalr"
@@ -16,10 +17,12 @@ setPendingRequests?: any
 const FriendCard = ({user, action, chatParticipantList,setPendingRequests, setChatParticipantList}:FriendCardProps) => {
 
     const [status, setStatus] = useState<string>('')
+    const [loading,setLoading] = useState<boolean>(false)
 
     const findStatus = async () => {
+      setLoading(true)
       const response = await checkStatus(user)
-  
+      setLoading(false)
       if (response?.data === "Friendship doesnt exist") {
         setStatus("Add")
       } else if (response?.data === "Pending") {
@@ -65,6 +68,9 @@ const FriendCard = ({user, action, chatParticipantList,setPendingRequests, setCh
   return (
     <div className='bg-base-300 rounded-lg p-3 flex justify-between w-full'>
         <p className='font-bold'>{user.userName}</p>
+        {
+          loading ? <Spinner /> : null
+        }
         {
           status === 'Pending' ? <p className='text-yellow-500'>Pending</p> : null
         }

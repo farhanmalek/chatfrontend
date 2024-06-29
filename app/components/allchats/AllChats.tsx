@@ -8,6 +8,7 @@ import { handleError } from "@/app/helpers/errorHandler";
 import { MessageModel } from "@/app/models/MessageModel";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/useAuth";
+import Spinner from "@/app/loading/Spinner";
 
 interface ModalProps {
   setIsModalOpen: (arg0: boolean) => void;
@@ -29,7 +30,7 @@ const AllChats = ({
   setHubConnection,
   messages,
 }: ModalProps) => {
-  const { chats, setChats } = useChat();
+  const { chats, setChats, loading } = useChat();
   const { user } = useAuth();
   const [lastMessages, setLastMessages] = useState<{
     [key: number]: MessageModel;
@@ -142,17 +143,31 @@ const AllChats = ({
         />
       </div>
       <div className="overflow-y-auto flex flex-col gap-2">
-        {chats.length === 0 ? (
-          <p className="text-center">No chats...</p>
+        {loading ? (
+          <div className="flex flex-col items-center">
+            <Spinner />
+          </div>
         ) : (
-          Array.from(new Set(chats.map((chat) => chat.id))).map((id) => {
-            const chat = chats.find((c) => c.id === id); // Find the chat object by id
-            return (
-              <div key={chat!.id} onClick={() => handleChatSelection(chat!)}>
-                <ChatCard chat={chat!} lastMessage={lastMessages[chat!.id]} />
-              </div>
-            );
-          })
+          <>
+            {chats.length === 0 ? (
+              <p className="text-center">No chats...</p>
+            ) : (
+              Array.from(new Set(chats.map((chat) => chat.id))).map((id) => {
+                const chat = chats.find((c) => c.id === id); // Find the chat object by id
+                return (
+                  <div
+                    key={chat!.id}
+                    onClick={() => handleChatSelection(chat!)}
+                  >
+                    <ChatCard
+                      chat={chat!}
+                      lastMessage={lastMessages[chat!.id]}
+                    />
+                  </div>
+                );
+              })
+            )}
+          </>
         )}
       </div>
     </div>
