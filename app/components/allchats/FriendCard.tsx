@@ -14,7 +14,7 @@ setChatParticipantList?: (arg0: any) => void
 setPendingRequests?: any
 }
 
-const FriendCard = ({user, action, chatParticipantList,setPendingRequests, setChatParticipantList}:FriendCardProps) => {
+const FriendCard = ({user, action, chatParticipantList, setChatParticipantList}:FriendCardProps) => {
 
     const [status, setStatus] = useState<string>('')
     const [loading,setLoading] = useState<boolean>(false)

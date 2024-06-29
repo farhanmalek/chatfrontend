@@ -12,7 +12,7 @@ const SearchCard = ({searchResults, setPendingRequests,searchLoading}: searchPro
 
 
   return (
-    <div className="bg-base-200 w-[300px] rounded-md absolute right-0 mt-2 z-50">
+    <div className="bg-base-200 w-[300px] rounded-md absolute right-0 mt-2 z-50 ">
         { searchLoading ? <div className="flex justify-center p-5"><Spinner/> </div>:
           searchResults.length >= 1 ?
           searchResults.map((user: UserProfile) => {

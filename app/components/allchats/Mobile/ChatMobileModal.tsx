@@ -5,6 +5,8 @@ import { getFriends } from "@/app/services/FriendService";
 import { useEffect, useState } from "react";
 import FriendCard from "../FriendCard";
 import Spinner from "@/app/loading/Spinner";
+import { createChat } from "@/app/services/ChatService";
+import { toast } from "react-toastify";
 
 interface ChatMobileModalProps {
   setNewChatModal: (arg0: boolean) => void;
@@ -14,6 +16,7 @@ const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
   const [friends, setFriends] = useState<UserProfile[]>([]);
   const [searchInput, setSearchInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [chatParticipantList, setChatParticipantList] = useState<UserProfile[]>([]);
 
   useEffect(() => {
     // Fetch friends when the component mounts or searchInput changes
@@ -30,6 +33,18 @@ const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
 
     fetchFriends();
   }, [searchInput]);
+
+  //create the chat
+  const handleChatCreation = async () => {
+    try {
+      await createChat(chatParticipantList);
+      toast.success("Chat created successfully");
+      setNewChatModal(false);
+      setChatParticipantList([]);
+    } catch (error) {
+      console.error("Failed to create chat", error);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-center items-center bg-black bg-opacity-50">
@@ -81,6 +96,8 @@ const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
                   key={friend.userId}
                   user={friend}
                   action="Message"
+                  chatParticipantList={chatParticipantList}
+                  setChatParticipantList={setChatParticipantList}
                 />
               ))}
             </>
@@ -88,6 +105,11 @@ const ChatMobileModal = ({ setNewChatModal }: ChatMobileModalProps) => {
           
           }
         </div>
+        {chatParticipantList.length > 0 && (
+          <button className="btn self-end mt-20" onClick={handleChatCreation}>
+            Create Chat
+          </button>
+        )}
       </div>
     </div>
   );

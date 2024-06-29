@@ -140,7 +140,7 @@ const Header = () => {
     <div className="flex flex-col gap-2">
       <div className="navbar bg-secondary-content">
         <div className="flex-1">
-          <a className="btn btn-ghost text-xl font-bold">Yap.</a>
+          <a className="btn btn-ghost text-xl font-bold">Messenger.</a>
         </div>
         <div className="flex-none gap-2" ref={searchRef}>
           <div className="relative" ref={friendRequstRef}>

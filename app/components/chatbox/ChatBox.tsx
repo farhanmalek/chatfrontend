@@ -210,7 +210,7 @@ const ChatBox = ({
             </div>
           </div>
           <div className="flex-grow h-[85%]" ref={chatBoxRef}>
-            {chatData && chatData.messages.length > 0 ? (
+            {chatData && (
               <div className="flex flex-col h-full overflow-y-scroll">
                 {messages.map((message, index) =>
                   message.sender.userId === user?.userId ? (
@@ -221,7 +221,7 @@ const ChatBox = ({
                 )}
                 <div ref={chatEndRef} />
               </div>
-            ) : <p className="text-center p-10">No messages yet. Get chatting!</p>
+            )
           
           }
           </div>
