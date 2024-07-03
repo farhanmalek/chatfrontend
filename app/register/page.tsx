@@ -7,7 +7,7 @@ const page = () => {
     <BackgroundGradientAnimation>
     <div className="flex flex-col items-center h-[100vh] justify-around md:flex-row">
   <div className="flex flex-col ">
-    <p className="font-extrabold text-2xl md:text-5xl text-center">WilliamsBook</p>
+    <p className="font-extrabold text-2xl md:text-5xl text-center">Messenger.</p>
     <p className="font-bold text-lg text-center">
       Connect. Anytime. Anywhere. Instantly.
     </p>
