@@ -1,3 +1,8 @@
+### About
+This project was a way for me to practice C# and ASP .NETCore framework, I decided to build a chat application, for more information regarding the process please refer to the backend repository.
+The frontend was built using NextJS, Tailwind and is fully responsive.
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
